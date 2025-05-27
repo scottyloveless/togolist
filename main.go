@@ -46,7 +46,17 @@ func main() {
 			var id int
 			fmt.Sscanf(scanner.Text(), "%d", &id)
 			deleteTodo(id)
-
+		case "c":
+			fmt.Print("Enter task ID to complete: ")
+			scanner.Scan()
+			var id int
+			fmt.Sscanf(scanner.Text(), "%d", &id)
+			completeTodo(id)
+		case "q":
+			fmt.Println("Goodbye!")
+			return
+		default:
+			fmt.Println("Invalid option")
 		}
 	}
 }
