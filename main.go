@@ -18,6 +18,7 @@ type Todo struct {
 
 var todos []Todo
 var nextID = 1
+var sortType = false
 
 const storageFile = "storage.json"
 
@@ -25,15 +26,15 @@ func main() {
 	loadTodos()
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
-
-		fmt.Println("\nToGo Task Manager")
-		fmt.Println("[a] add | [l] list | [d] delete | [c] complete | [x] clear completed | [q] quit")
+		clearTerminal()
+		topMenu()
 		fmt.Print("Choose an option: ")
 		scanner.Scan()
 		choice := strings.ToLower(scanner.Text())
 
 		switch choice {
 		case "a":
+			clearTerminal()
 			fmt.Print("Enter task: ")
 			scanner.Scan()
 			task := scanner.Text()
@@ -58,9 +59,12 @@ func main() {
 				saveTodos()
 				fmt.Println("Task added!")
 			}
-		case "l":
-			listTodos()
+		// case "l":
+		// 	clearTerminal()
+		// 	listTodos()
 		case "d":
+			clearTerminal()
+			topMenu()
 			fmt.Print("Enter task ID to delete: ")
 			scanner.Scan()
 			var id int
@@ -68,6 +72,8 @@ func main() {
 			deleteTodo(id)
 			saveTodos()
 		case "c":
+			clearTerminal()
+			topMenu()
 			fmt.Print("Enter task ID to complete: ")
 			scanner.Scan()
 			var id int
@@ -77,7 +83,26 @@ func main() {
 		case "q":
 			fmt.Println("Goodbye!")
 			return
+		case "s":
+			clearTerminal()
+			topMenu()
+			fmt.Println("Sort by [i]d | [p]riority: ")
+			scanner.Scan()
+			sortChoice := strings.ToLower(scanner.Text())
+			switch sortChoice {
+			case "i":
+				sortTodosById()
+				saveTodos()
+			case "p":
+				sortTodosByPriority()
+				saveTodos()
+			default:
+				fmt.Println("Invalid option")
+
+			}
+
 		case "x":
+			clearTerminal()
 			clearCompleted()
 			saveTodos()
 			fmt.Println("Completed todos deleted")
@@ -92,20 +117,47 @@ func listTodos() {
 		fmt.Println("No tasks!")
 		return
 	}
+
 	for _, todo := range todos {
 		status := " "
 		if todo.Done {
 			status = "✓"
 		}
-		fmt.Printf("[%d] %s [%s] !%d\n", todo.ID, todo.Task, status, todo.Priority)
+		fmt.Printf("[%d]  %s    !%d   [%s]\n", todo.ID, todo.Task, todo.Priority, status)
+	}
+
+}
+
+func sortTodosByPriority() {
+	n := len(todos)
+	for i := 0; i < n+1; i++ {
+		for j := 0; j < n-i-1; j++ {
+			if todos[j].Priority < todos[j+1].Priority {
+				todos[j], todos[j+1] = todos[j+1], todos[j]
+			}
+		}
+	}
+}
+
+func sortTodosById() {
+	n := len(todos)
+	for i := 0; i < n+1; i++ {
+		for j := 0; j < n-i-1; j++ {
+			if todos[j].ID > todos[j+1].ID {
+				todos[j], todos[j+1] = todos[j+1], todos[j]
+			}
+		}
 	}
 }
 
 func completeTodo(id int) {
 	for i, todo := range todos {
 		if todo.ID == id {
+			if todo.Done == true {
+				todos[i].Done = false
+				return
+			}
 			todos[i].Done = true
-			fmt.Println("Task completed!")
 			return
 		}
 	}
@@ -171,4 +223,12 @@ func clearCompleted() {
 	for _, v := range completed {
 		deleteTodo(v)
 	}
+}
+
+func topMenu() {
+	fmt.Println("Todos:")
+	fmt.Println(" ")
+	listTodos()
+	fmt.Println(" ")
+	fmt.Println("[a]dd | [d]elete | [c]omplete | [s]ort | [x]cleanup | [q]uit")
 }
