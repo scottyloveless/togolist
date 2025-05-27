@@ -27,7 +27,7 @@ func main() {
 	for {
 
 		fmt.Println("\nToGo Task Manager")
-		fmt.Println("[a] add | [l] list | [d] delete | [c] complete | [x] clear completed")
+		fmt.Println("[a] add | [l] list | [d] delete | [c] complete | [x] clear completed | [q] quit")
 		fmt.Print("Choose an option: ")
 		scanner.Scan()
 		choice := strings.ToLower(scanner.Text())
